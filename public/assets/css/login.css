@@ -1,0 +1,204 @@
+/* General page Style */
+body {
+    font-family: Arial, sans-serif;
+    color: #000;
+    display: flex;
+    justify-items: center;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+    margin: 0;
+    background-color: #F1F0F6;
+    padding: 20px;
+    box-sizing: border-box;
+}
+
+.login-container {
+    display: flex;
+    flex-direction: row;
+    width: 900px;
+    height: 530px;
+    background-color: #fff;
+    color: #000;
+    border-radius: 12px;
+    border: 5px solid #0044cc;
+    overflow: hidden;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+/* Login left Styling */
+.login-left {
+    background-color: #f0f7ff;
+    width: 50%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 20px;
+    box-sizing: border-box;
+}
+
+.promo-content {
+    text-align: center;
+}
+
+.promo-image {
+    width: 200px;
+    margin-bottom: 10px;
+}
+
+.promo-content h2 {
+    font-size: 24px;
+    margin-bottom: 10px;
+}
+
+.promo-content p {
+    font-size: 16px;
+    line-height: 1.5;
+}
+
+/* Right Side login form Styling */
+.login-right {
+    width: 50%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 0 30px;
+    box-sizing: border-box;
+}
+
+.login-box {
+    width: 100%;
+}
+
+.login-box h2 {
+    font-size: 24px;
+    margin-bottom: 10px;
+}
+
+.login-box p {
+    margin-bottom: 20px;
+    color: #666;
+}
+
+form {
+    display: flex;
+    flex-direction: column;
+}
+
+label {
+    margin-bottom: 5px;
+    font-size: 16px;
+    font-weight: 500;
+    color: #000;
+}
+
+input {
+    padding: 10px;
+    margin-bottom: 20px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    font-size: 14px;
+}
+
+.password-container {
+    position: relative;
+    display: flex;
+    align-items: center;
+}
+
+.password-container input {
+    width: 100%;
+    padding-right: 40px;
+}
+
+.toggle-password {
+    position: absolute;
+    right: 10px;
+    margin-bottom: 18px;
+    cursor: pointer;
+    font-size: 18px;
+    color: #666;
+}
+
+.error-message {
+    color: red; 
+    padding: 0;
+    margin: 0 0 10px 0;
+    font-size: 0.9rem;
+}
+
+/* Button Styling */
+.login-btn {
+    background-color: #0044cc;
+    color: #fff;
+    padding: 10px;
+    border: none;
+    border-radius: 5px;
+    font-size: 16px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+}
+
+.login-btn:hover {
+    background-color: #003bb5;
+}
+
+.google-btn {
+    background-color: #fff;
+    color: #000;
+    border: 1px solid #0044cc;
+    padding: 10px;
+    border-radius: 5px;
+    font-size: 16px;
+    margin-top: 20px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+}
+
+.google-btn:hover {
+    background-color: #e6f0ff;
+}
+
+/* Sign up text styling */
+.signup-text {
+    text-align: center;
+    margin-top: 30px;
+}
+
+.signup-text a {
+    color: #0044cc;
+    text-decoration: none;
+    font-weight: 500;
+}
+
+/* Responsiveness */
+@media (max-width: 768px) {
+    .login-container {
+        width: 100%;
+        flex-direction: column;
+        height: auto;
+        border: none;
+        padding: 15px;
+    }
+
+    .login-left, .login-right {
+        width: 100%;
+        padding: 50px;
+    }
+
+    .login-left {
+        padding-bottom: 0;
+    }
+
+    .promo-image {
+        width: 120px;
+    }
+
+    .promo-content h2, .login-box h2 {
+        font-size: 20px;
+    }
+
+    .promo-content p, .login-box p {
+        font-size: 14px;
+    }
+}
