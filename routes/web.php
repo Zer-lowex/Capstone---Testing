@@ -89,12 +89,11 @@ Route::middleware(['auth', 'Admin', 'PreventBackHistory'])->group(function () {
     Route::post('/admin/deliveries/assign-driver', [AdminController::class, 'assignDriver'])->name('admin.assign.driver'); //Assign Driver
     Route::get('/admin/complete-deliveries', [AdminController::class, 'viewCompleteDeliveries']); //View Completed Orders
     Route::get('/admin/receipts/{id}', [AdminController::class, 'receipt'])->name('admin.receipt.view'); //View Receipt
-    Route::get('/admin/verification/{delivery}', [AdminController::class, 'getVerificationPhoto'])->name('admin.deliveries.verification-photo');
 
     Route::get('/admin/reports', [AdminController::class, 'salesReport'])->name('admin.sales.view'); //View Sales
     Route::get('/admin/inventory-reports', [AdminController::class, 'inventoryReport'])->name('admin.inventory.view'); //View Inventory Report
     Route::get('/admin/cashier-reports', [AdminController::class, 'cashierReport'])->name('admin.cashierReport.view'); //View Cashier Report
-
+    Route::get('/admin/delivery-reports', [AdminController::class, 'viewDeliveryReport'])->name('admin.deliveryReport.view'); //View Delivery Report
 
     Route::get('/admin/activityLog', [AdminController::class, 'viewActivityLog'])->name('admin.activityLog.view'); //View Activity Logs
     Route::delete('/admin/activityLog/delete/{id}', [AdminController::class, 'deleteActivityLog'])->name('activityLog.delete'); //Delete Activity Log
@@ -166,11 +165,11 @@ Route::middleware(['auth', 'Owner', 'PreventBackHistory'])->group(function () {
     Route::post('/owner/deliveries/assign-driver', [OwnerController::class, 'assignDriver'])->name('owner.assign.driver'); //Assign Driver
     Route::get('/owner/complete-deliveries', [OwnerController::class, 'viewCompleteDeliveries']); //View Orders
     Route::get('/owner/receipts/{id}', [OwnerController::class, 'receipt'])->name('owner.receipt.view'); //View Receipt
-    Route::get('/owner/verification/{delivery}', [OwnerController::class, 'getVerificationPhoto'])->name('owner.deliveries.verification-photo');
 
     Route::get('/owner/reports', [OwnerController::class, 'salesReport'])->name('owner.sales.view'); //View Sales
     Route::get('/owner/inventory-reports', [OwnerController::class, 'inventoryReport'])->name('owner.inventory.view'); //View Inventory Report
     Route::get('/owner/cashier-reports', [OwnerController::class, 'cashierReport'])->name('owner.cashierReport.view'); //View Cashier Report
+    Route::get('/owner/delivery-reports', [OwnerController::class, 'viewDeliveryReport'])->name('owner.deliveryReport.view'); //View Delivery Report
 
     Route::get('/owner/activityLog', [OwnerController::class, 'viewActivityLog'])->name('owner.activityLog.view'); //View Activity Logs
     Route::delete('/owner/activityLog/delete/{id}', [OwnerController::class, 'deleteActivityLog'])->name('owner.activityLog.delete'); //Delete Activity Log

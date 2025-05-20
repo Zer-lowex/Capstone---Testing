@@ -28,14 +28,13 @@
                                     <th>SALE ID</th>
                                     <th>DRIVER</th>
                                     <th>CUSTOMER ADDRESS</th>
-                                    <th>STATUS</th>
                                     <th>DETAILS</th>
                                 </tr>
                             </thead>
                             <tbody>
                                 @if ($deliveries->isEmpty())
                                     <tr>
-                                        <td colspan="6" class="text-center">No Deliveries Found.</td>
+                                        <td colspan="5" class="text-center">No Deliveries Found.</td>
                                     </tr>
                                 @else
                                     @foreach ($deliveries as $delivery)
@@ -44,7 +43,6 @@
                                         <td>{{ $delivery->sale_id }}</td>
                                         <td>{{ $delivery->user ? $delivery->user->username : 'No Driver Assigned' }}</td>
                                         <td>{{ $delivery->sale->customer_address }}</td>
-                                        <td>{{ $delivery->status }}</td>
                                         <td>
                                             <a href="{{ route('staff.receipt.view', $delivery->sale->id) }}" class="btn btn-primary">
                                                 <i class="bx bxs-receipt"></i>

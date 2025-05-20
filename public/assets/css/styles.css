@@ -392,9 +392,69 @@ li {
 }
 /* SIDEBAR */
 
+/* LOW STOCK AND EXPIRY COUNTER DASHBOARD */
+.badge {
+	padding: 0.35em 0.65em;
+	border-radius: 0.25rem;
+	color: white;
+	font-weight: bold;
+}
+.warning-badge {
+	background-color: #ffc107; 
+}
+.danger-badge {
+	background-color: #dc3545; 
+}
+.expiry-indicator {
+	text-align: center;
+}
+.expiry-indicator .badge {
+	padding: 0.5em 0.75em;
+	font-size: 1.2rem;
+	min-width: 2.5rem;
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	transition: transform 0.2s;
+}
+.expiry-indicator .badge:hover {
+	transform: scale(1.1);
+}
 
+/* PRODUCTS PAGE TABLE COLOR IF THERES LOW STOCK OR EXPIRY DATE */
+.table-row-warning {
+    border-left: 8px solid #FFEB3B;
+    background-color: rgba(255, 235, 59, 0.05);
+}
 
+.table-row-danger {
+    border-left: 8px solid #FF0000;
+    background-color: rgba(255, 0, 0, 0.05);
+}
 
+/* Hover effects */
+.table-row-warning:hover {
+    background-color: rgba(255, 235, 59, 0.1) !important;
+}
+
+.table-row-danger:hover {
+    background-color: rgba(255, 0, 0, 0.1) !important;
+}
+
+/* Maintain existing badge styles */
+.badge {
+	font-weight: 600;
+}
+
+.bg-warning {
+	background-color: #ffc107 !important;
+	color: #212529 !important;
+}
+
+.bg-danger {
+	background-color: #dc3545 !important;
+	color: white !important;
+}
 
 /* CONTENT */
 #content {

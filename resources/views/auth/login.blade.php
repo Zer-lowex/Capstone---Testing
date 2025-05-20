@@ -21,7 +21,7 @@
             <div class="promo-content">
                 <img src="{{ asset('assets/images/kc.png') }}" alt="Logo" class="promo-image">
                 <h2>KC PRIME ENTERPRISE</h2>
-                <p>POS AND INVENTORY TRACKING SYSTEM</p>
+                <p>INVENTORY TRACKING SYSTEM</p>
             </div>
         </div>
 

@@ -43,21 +43,44 @@
                         </div>
                     </div>
                 </div>
+                {{-- LOW STOCK COUNTER --}}
                 <div class="dash-card">
                     <div class="head">
                         <i class="bx bx-down-arrow-circle icon"></i>
-                        <div>
-                            <span class="count">{{ $lowStockCount }} | {{ $stockAlertThresholdCount }}</span>
-                            <p>Low Stock</p>
+                        <div class="low-stock-indicator">
+                            <span class="badge bg-warning fs-5" title="Items with low stock (below warning threshold)"
+                                data-bs-toggle="tooltip">{{ $lowStockCount }}</span>
+
+                            <span class="text-muted mx-2">|</span>
+
+                            <span class="badge bg-danger fs-5"
+                                title="Critical items (below danger threshold - urgent restock needed)"
+                                data-bs-toggle="tooltip">{{ $stockAlertThresholdCount }}</span>
+
+                            <p class="mt-2 mb-0">Low Stock</p>
                         </div>
                     </div>
                 </div>
+                {{-- EXPIRY COUNTER --}}
                 <div class="dash-card">
                     <div class="head">
                         <i class="bx bx-alarm-exclamation icon"></i>
-                        <div>
-                            <span class="count">{{ $almostExpiredCount }} | {{ $expiredCount }}</span>
-                            <p>Expiry Date</p>
+                        <div class="expiry-indicator">
+                            <span 
+                                class="badge bg-warning fs-5" 
+                                title="Products nearing expiration (close to expiry date)"
+                                data-bs-toggle="tooltip"
+                            >{{ $almostExpiredCount }}</span>
+                            
+                            <span class="text-muted mx-2">|</span>
+                            
+                            <span 
+                                class="badge bg-danger fs-5" 
+                                title="Expired products (past expiry date - remove from inventory)"
+                                data-bs-toggle="tooltip"
+                            >{{ $expiredCount }}</span>
+                            
+                            <p class="mt-2 mb-0">Expiry Date</p>
                         </div>
                     </div>
                 </div>
@@ -270,7 +293,17 @@
         var chart = new ApexCharts(document.querySelector("#salesReportChart"), options);
         chart.render();
 
-    </script>    
+    </script>   
+    
+    {{-- LOW STOCK AND EXPIRY HOVER --}}
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'));
+            tooltipTriggerList.map(function(tooltipTriggerEl) {
+                return new bootstrap.Tooltip(tooltipTriggerEl);
+            });
+        });
+    </script>
 
 </body>
 

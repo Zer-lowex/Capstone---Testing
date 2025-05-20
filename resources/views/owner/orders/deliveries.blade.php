@@ -58,7 +58,14 @@
                                         <td>{{ $delivery->sale_id }}</td>
                                         <td>{{ $delivery->user ? $delivery->user->username : 'No Driver Assigned' }}</td>
                                         <td>{{ $delivery->sale->customer_address }}</td>
-                                        <td>{{ $delivery->status }}</td>
+                                        <td>
+                                            <span
+                                                class="badge 
+                                                {{ $delivery->status === 'COMPLETE' ? 'bg-success' : ($delivery->status === 'PENDING' ? 'bg-warning' : 'bg-secondary') }}
+                                                px-3 py-1 fs-6">
+                                                        {{ $delivery->status }}
+                                            </span>
+                                        </td>
                                         <td>
                                             <a href="{{ route('owner.receipt.view', $delivery->sale->id) }}" class="btn btn-primary">
                                                 <i class="bx bxs-receipt"></i>

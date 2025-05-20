@@ -63,7 +63,7 @@
                                     <tr>
                                         <td>{{ $sale->id }}</td>
                                         <td>{{ $sale->user->id }}</td>
-                                        <td>{{ $sale->customer->name ?? 'WALK-IN'}}</td>
+                                        <td>{{ $sale->customer->username ?? 'WALK-IN'}}</td>
                                         <td>₱{{ number_format($sale->total_amount, 2) }}</td>
                                         <td>₱{{ number_format($sale->discount, 2) }}</td>
                                         <td>{{ $sale->delivery }}</td>

@@ -78,6 +78,10 @@
 				<a href="{{ url('/admin/cashier-reports') }}" class="icon-link"> 
                     <i class='bx bxs-receipt'></i> Cashier Report </a>
 			</li>
+            <li>
+				<a href="{{ url('/admin/delivery-reports') }}" class="icon-link"> 
+                    <i class='bx bxs-truck'></i> Driver Report </a>
+			</li>
 		</ul>
 	</li>
 	<li><a href="{{ url('admin/activityLog') }}"><i class='bx bxs-box icon'></i> Activity Log</a></li>

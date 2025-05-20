@@ -60,7 +60,7 @@
                                 <div class="card shadow-sm mb-3">
                                     <div class="card-body">
                                         <h5 class="card-title">Email</h5>
-                                        <p class="card-text">{{ $user->email }}</p>
+                                        <p class="card-text">{{ $user->email ?? 'Not provided' }}</p>
                                     </div>
                                 </div>
                             </div>

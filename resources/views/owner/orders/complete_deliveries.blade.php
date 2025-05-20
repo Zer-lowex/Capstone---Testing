@@ -4,12 +4,12 @@
 
 @section('content')
 
-<h1 class="title">Orders</h1>
-<ul class="breadcrumbs">
-    <li><a href="#">Home</a></li>
-    <li class="divider">/</li>
-    <li><a href="#" class="active">View Orders</a></li>
-</ul>
+    <h1 class="title">Orders</h1>
+    <ul class="breadcrumbs">
+        <li><a href="#">Home</a></li>
+        <li class="divider">/</li>
+        <li><a href="#" class="active">View Orders</a></li>
+    </ul>
 
     <div class="info-data">
         <div class="container">
@@ -28,7 +28,6 @@
                                     <th>SALE ID</th>
                                     <th>DRIVER</th>
                                     <th>CUSTOMER ADDRESS</th>
-                                    <th>STATUS</th>
                                     <th>DETAILS</th>
                                 </tr>
                             </thead>
@@ -39,31 +38,31 @@
                                     </tr>
                                 @else
                                     @foreach ($deliveries as $delivery)
-                                    <tr>
-                                        <td>{{ $delivery->id }}</td>
-                                        <td>{{ $delivery->sale_id }}</td>
-                                        <td>{{ $delivery->user ? $delivery->user->username : 'No Driver Assigned' }}</td>
-                                        <td>{{ $delivery->sale->customer_address }}</td>
-                                        <td>{{ $delivery->status }}</td>
-                                        <td>
-                                            <a href="{{ route('owner.receipt.view', $delivery->sale->id) }}" class="btn btn-primary">
-                                                <i class="bx bxs-receipt"></i>
-                                            </a>
-                                            <button class="btn btn-success view-photo"
-                                                    data-delivery-id="{{ $delivery->id }}"
-                                                    data-photo-path="{{ $delivery->verification }}"
-                                                    title="View Verification Photo">
-                                                <i class="bx bxs-camera"></i>
-                                            </button>
-                                        </td>
-                                    </tr>
+                                        <tr>
+                                            <td>{{ $delivery->id }}</td>
+                                            <td>{{ $delivery->sale_id }}</td>
+                                            <td>{{ $delivery->user ? $delivery->user->username : 'No Driver Assigned' }}
+                                            </td>
+                                            <td>{{ $delivery->sale->customer_address }}</td>
+                                            <td>
+                                                <a href="{{ route('owner.receipt.view', $delivery->sale->id) }}"
+                                                    class="btn btn-primary">
+                                                    <i class="bx bxs-receipt"></i>
+                                                </a>
+                                                <button class="btn btn-success view-photo"
+                                                    data-photo-path="{{ asset('storage/' . $delivery->verification) }}"
+                                                    data-delivery-id="{{ $delivery->id }}" title="View Verification Photo">
+                                                    <i class="bx bxs-camera"></i>
+                                                </button>
+                                            </td>
+                                        </tr>
                                     @endforeach
                                 @endif
                             </tbody>
                         </table>
                         {{ $deliveries->links() }}
-                    </div>      
-                    
+                    </div>
+
                     <div class="modal fade" id="photoModal" tabindex="-1">
                         <div class="modal-dialog modal-lg">
                             <div class="modal-content">
@@ -78,7 +77,8 @@
                                         </div>
                                         <p class="mt-2">Loading verification photo...</p>
                                     </div>
-                                    <img id="modalPhoto" src="" class="img-fluid rounded d-none" style="max-height: 70vh;">
+                                    <img id="modalPhoto" src="" class="img-fluid rounded d-none"
+                                        style="max-height: 70vh;">
                                     <div id="photoError" class="alert alert-danger d-none"></div>
                                 </div>
                                 <div class="modal-footer">
@@ -92,33 +92,32 @@
         </div>
     </div>
 
-<!-- jQuery for AJAX -->
-<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-<script>
-    document.querySelectorAll('.view-photo').forEach(btn => {
-        btn.addEventListener('click', function() {
-            const deliveryId = this.dataset.deliveryId;
-            const photoPath = this.dataset.photoPath;
-            const modal = new bootstrap.Modal('#photoModal');
-            const img = document.getElementById('modalPhoto');
+    <!-- jQuery for AJAX -->
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script>
+        document.querySelectorAll('.view-photo').forEach(btn => {
+            btn.addEventListener('click', function() {
+                const photoUrl = this.dataset.photoPath;
+                const deliveryId = this.dataset.deliveryId;
+                const modal = new bootstrap.Modal(document.getElementById('photoModal'));
+                const img = document.getElementById('modalPhoto');
 
-            document.getElementById('deliveryIdSpan').textContent = deliveryId;
+                document.getElementById('deliveryIdSpan').textContent = deliveryId;
 
-            img.classList.add('d-none');
-            document.getElementById('photoLoading').classList.remove('d-none');
+                img.classList.add('d-none');
+                document.getElementById('photoLoading').classList.remove('d-none');
 
-            img.src = `/owner/verification/${deliveryId}?t=${new Date().getTime()}`;
-            img.alt = `Delivery verification #${deliveryId}`;
-            
-            img.onload = function() {
-                document.getElementById('photoLoading').classList.add('d-none');
-                img.classList.remove('d-none');
-            };
-            
-            // Show modal
-            modal.show();
+                // Add timestamp to force reload and prevent caching
+                img.src = `${photoUrl}?t=${new Date().getTime()}`;
+                img.alt = `Delivery verification #${deliveryId}`;
+
+                img.onload = function() {
+                    document.getElementById('photoLoading').classList.add('d-none');
+                    img.classList.remove('d-none');
+                };
+
+                modal.show();
+            });
         });
-    });
-</script>
+    </script>
 @endsection
-

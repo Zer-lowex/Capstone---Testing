@@ -1,6 +1,6 @@
-@extends('admin.layout')
+@extends('owner.layout')
 
-@section('title', 'Cashier Report')
+@section('title', 'Driver Report')
 
 @section('content')
 
@@ -8,18 +8,18 @@
     <ul class="breadcrumbs">
         <li><a href="#">Home</a></li>
         <li class="divider">/</li>
-        <li><a href="#" class="active">Cashier Report</a></li>
+        <li><a href="#" class="active">Driver Report</a></li>
     </ul>
 
     <div class="container mt-4">
         <div class="card shadow-sm p-4">
             <div class="d-flex justify-content-between align-items-center mb-3">
-                <h4>Cashier Report</h4>
+                <h4>Delivery Report</h4>
                 <button id="btnPrint" class="btn btn-primary"><i class="bx bxs-printer"></i> Print</button>
             </div>
 
             <!-- Filter Form -->
-            <form method="GET" action="{{ route('admin.cashierReport.view') }}" class="mb-4">
+            <form method="GET" action="{{ route('owner.deliveryReport.view') }}" class="mb-4">
                 <div class="row g-3">
                     <div class="col-md-3">
                         <select name="filter" class="form-control">
@@ -30,30 +30,30 @@
                         </select>
                     </div>
                     <div class="col-md-3">
-                        <select name="cashier_id" class="form-control">
-                            <option value="">Select Cashier</option>
-                            @foreach ($cashiers as $cashier)
-                                <option value="{{ $cashier->id }}"
-                                    {{ request('cashier_id') == $cashier->id ? 'selected' : '' }}>
-                                    {{ $cashier->first_name }} {{ $cashier->last_name }}
+                        <select name="driver_id" class="form-control">
+                            <option value="">Select Driver</option>
+                            @foreach ($drivers as $driver)
+                                <option value="{{ $driver->id }}"
+                                    {{ request('driver_id') == $driver->id ? 'selected' : '' }}>
+                                    {{ $driver->first_name }} {{ $driver->last_name }}
                                 </option>
                             @endforeach
                         </select>
                     </div>
                     <div class="col-md-3">
                         <button type="submit" class="btn btn-primary">Filter</button>
-                        <a href="{{ route('admin.cashierReport.view') }}" class="btn btn-secondary">Reset</a>
+                        <a href="{{ route('owner.deliveryReport.view') }}" class="btn btn-secondary">Reset</a>
                     </div>
                 </div>
             </form>
 
             @if (request()->has('filter'))
-                <!-- Report Details -->
+                <!-- Report Summary -->
                 <div class="row">
                     <div class="col-md-6">
                         <div class="card p-3 mb-3 shadow-sm">
-                            @if (request()->has('cashier_id') && $cashierName)
-                                <p><strong>Name:</strong> {{ $cashierName }}</p>
+                            @if (request()->has('driver_id') && $driverName)
+                                <p><strong>Driver:</strong> {{ $driverName }}</p>
                             @endif
                             <p><strong>Date:</strong> {{ $reportDate }}</p>
                             <p><strong>Time Range:</strong> {{ $timeRange }}</p>
@@ -61,67 +61,46 @@
                     </div>
                     <div class="col-md-6">
                         <div class="card p-3 mb-3 shadow-sm">
-                            <p><strong>Total Sales:</strong> ₱{{ number_format($totalSales, 2) }}</p>
-                            <p><strong>Total Transactions:</strong> {{ $totalTransactions }}</p>
-                            <p><strong>Average Transaction Value:</strong>
-                                ₱{{ number_format($averageTransactionValue, 2) }}</p>
+                            <p><strong>Total Deliveries:</strong> {{ $totalDeliveries }}</p>
                         </div>
                     </div>
                 </div>
 
-                <!-- Inventory Updates -->
+                <!-- Deliveries Table -->
                 <div class="card p-3 mb-3 shadow-sm">
-                    <h6 class="fw-bold">Inventory Updates</h6>
+                    <h6 class="fw-bold">Deliveries Made</h6>
                     <table class="table table-striped table-bordered text-center align-middle">
                         <thead class="table-primary">
                             <tr>
-                                <th>ID</th>
-                                <th>Item Name</th>
-                                <th>Quantity Sold</th>
-                                <th>Revenue</th>
+                                <th>Delivery ID</th>
+                                <th>Customer</th>
+                                <th>Customer Address</th>
+                                <th>Delivery Date</th>
+                                <th>Status</th>
                             </tr>
                         </thead>
                         <tbody>
-                            @foreach ($itemsSold as $item)
+                            @forelse ($deliveries as $delivery)
                                 <tr>
-                                    <td>{{ $item['product_code'] }}</td>
-                                    <td>{{ $item['name'] }}</td>
+                                    <td>{{ $delivery->id }}</td>
+                                    <td>{{ $delivery->sale->customer->first_name }} {{ $delivery->sale->customer->last_name }}</td>
+                                    <td>{{ $delivery->sale->customer->address }}</td>
+                                    <td>{{ $delivery->updated_at->format('Y-m-d H:i') }}</td>
                                     <td>
-                                        {{ $item['quantity'] }}
-                                        {{ $item['quantity'] == 1 ? 'unit' : 'units' }}
+                                        <span class="badge bg-{{ $delivery->status == 'COMPLETE' ? 'success' : ($delivery->status == 'PENDING' ? 'warning' : 'secondary') }}">
+                                            {{ ucfirst($delivery->status) }}
+                                        </span>
                                     </td>
-                                    <td>₱{{ number_format($item['revenue'], 2) }}</td>
                                 </tr>
-                            @endforeach
+                            @empty
+                                <tr>
+                                    <td colspan="5">No deliveries found for the selected filters.</td>
+                                </tr>
+                            @endforelse
                         </tbody>
                     </table>
-                </div>
-
-                <!-- Additional Metrics -->
-                <div class="row">
-                    <div class="card p-3 mb-3 shadow-sm">
-                        <h6 class="fw-bold">Top-Selling Items</h6>
-                        <table class="table table-striped table-bordered text-center align-middle">
-                            <thead class="table-success">
-                                <tr>
-                                    <th>ID</th>
-                                    <th>Item Name</th>
-                                    <th>Units Sold</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                @foreach ($topSellingItems as $item)
-                                    <tr>
-                                        <td>{{ $item['product_code'] }}</td>
-                                        <td>{{ $item['name'] }}</td>
-                                        <td>
-                                            {{ $item['quantity'] }}
-                                            {{ $item['quantity'] == 1 ? 'unit' : 'units' }}
-                                        </td>
-                                    </tr>
-                                @endforeach
-                            </tbody>
-                        </table>
+                    <div class="d-flex justify-content-center mt-3">
+                        {{ $deliveries->withQueryString()->links() }}
                     </div>
                 </div>
             @endif
@@ -143,7 +122,7 @@
             <!DOCTYPE html>
             <html>
             <head>
-                <title>Cashier Performance Report</title>
+                <title>Driver Performance Report</title>
                 <style>
                     body { font-family: Arial; margin: 20px; }
                     .header { text-align: center; margin-bottom: 20px; }
@@ -165,7 +144,7 @@
             <body>
                 <div class="header">
                     <img src="${window.location.origin}/assets/images/kc.png" alt="Company Logo">
-                    <h2>Cashier Performance Report</h2>
+                    <h2>Driver Performance Report</h2>
                     <p>Generated on: ${new Date().toLocaleDateString()}</p>
                 </div>
                 ${printContent.innerHTML}
@@ -183,9 +162,5 @@
             printWindow.document.close();
         });
     </script>
-
-
-
-
 
 @endsection

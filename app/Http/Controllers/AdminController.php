@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use \Log;
 use App\Models\ActivityLog;
 use App\Models\Category;
 use App\Models\Customer;
@@ -19,6 +20,7 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Str;
 use Illuminate\Validation\ValidationException;
 
 class AdminController extends Controller
@@ -26,8 +28,8 @@ class AdminController extends Controller
     public function website()
     {
         $products = Product::with(['category', 'unit', 'supplier'])
-                    ->orderBy('name')
-                    ->get();
+            ->orderBy('name')
+            ->get();
 
         $categories = Category::orderBy('name')->pluck('name', 'id');
 
@@ -43,7 +45,7 @@ class AdminController extends Controller
 
         try {
             $product = Product::findOrFail($request->product_id);
-            
+
             // Delete old image if exists
             if ($product->image) {
                 $oldImagePath = public_path('images/' . $product->image);
@@ -51,22 +53,22 @@ class AdminController extends Controller
                     unlink($oldImagePath);
                 }
             }
-            
+
             // Store new image
             $image = $request->file('image');
-            $imageName = 'product-' . $product->id . '-' . time() . '.' . $image->getClientOriginalExtension();
+            // Generate the image name with product ID, name, and timestamp
+            $imageName = 'product-' . $product->id . '-' . Str::slug($product->name) . '-' . time() . '.' . $image->getClientOriginalExtension();
             $image->move(public_path('images'), $imageName);
-            
+
             // Save image name to database
             $product->image = $imageName;
             $product->save();
-            
+
             return response()->json([
                 'success' => true,
                 'message' => 'Image uploaded successfully',
                 'image_url' => asset('images/' . $imageName)
             ]);
-            
         } catch (\Exception $e) {
             return response()->json([
                 'success' => false,
@@ -86,12 +88,11 @@ class AdminController extends Controller
             $product = Product::findOrFail($request->product_id);
             $product->description = $request->description;
             $product->save();
-            
+
             return response()->json([
                 'success' => true,
                 'message' => 'Description updated successfully'
             ]);
-            
         } catch (\Exception $e) {
             return response()->json([
                 'success' => false,
@@ -174,7 +175,7 @@ class AdminController extends Controller
 
         if (request()->ajax()) {
             return response()->json([
-                'data' => $products->items(), 
+                'data' => $products->items(),
                 'pagination' => [
                     'current_page' => $products->currentPage(),
                     'last_page' => $products->lastPage(),
@@ -212,12 +213,12 @@ class AdminController extends Controller
 
         return redirect('/admin/settings/alerts')->with('success', 'Product Levels Updated Successfully');
     }
-    
+
     // FOR CUSTOMERS
 
     public function viewCustomer()
     {
-        $customers = Customer::orderBy('id','asc')->paginate(10);
+        $customers = Customer::orderBy('id', 'asc')->paginate(10);
         return view('admin.customers.index_customer', [
             'customers' => $customers
         ]);
@@ -229,8 +230,8 @@ class AdminController extends Controller
             $search = $request->get('term');
             $result = Customer::where(function ($query) use ($search) {
                 $query->where('first_name', 'LIKE', "%{$search}%")
-                      ->orWhere('last_name', 'LIKE', "%{$search}%")
-                      ->orWhere('username', 'LIKE', "%{$search}%"); // optional: search username too
+                    ->orWhere('last_name', 'LIKE', "%{$search}%")
+                    ->orWhere('username', 'LIKE', "%{$search}%"); // optional: search username too
             })
                 ->get(['id', 'first_name', 'last_name', 'username', 'phone', 'address']);
 
@@ -266,7 +267,7 @@ class AdminController extends Controller
             $customer->save();
 
             $user = Auth::user();
-            $usertype = $user->usertype; 
+            $usertype = $user->usertype;
 
             ActivityLog::create([
                 'user_id' => $user->id,
@@ -274,8 +275,7 @@ class AdminController extends Controller
                 'description' => "{$user->username} ({$usertype}) Created Customer ID: $customer->id",
             ]);
 
-            return redirect('/admin/customers')->with('success','Customer Created Successfully');
-
+            return redirect('/admin/customers')->with('success', 'Customer Created Successfully');
         } catch (ValidationException $e) {
             return redirect()->back()
                 ->withErrors($e->errors())
@@ -301,7 +301,7 @@ class AdminController extends Controller
             'address' => 'required|string|max:255',
         ]);
 
-        $customer->update($request->all()); 
+        $customer->update($request->all());
 
         $user = Auth::user();
         $usertype = $user->usertype;
@@ -349,10 +349,10 @@ class AdminController extends Controller
 
             $result = User::where(function ($query) use ($search) {
                 $query->where('first_name', 'LIKE', "%{$search}%")
-                      ->orWhere('last_name', 'LIKE', "%{$search}%")
-                      ->orWhere('username', 'LIKE', "%{$search}%"); // optional: search username too
+                    ->orWhere('last_name', 'LIKE', "%{$search}%")
+                    ->orWhere('username', 'LIKE', "%{$search}%"); // optional: search username too
             })
-            ->get(['id', 'first_name', 'last_name', 'username', 'email', 'usertype', 'phone', 'address', 'status']);
+                ->get(['id', 'first_name', 'last_name', 'username', 'email', 'usertype', 'phone', 'address', 'status']);
 
             $formattedResult = $result->map(function ($staff) {
                 return [
@@ -380,7 +380,7 @@ class AdminController extends Controller
             'first_name' => 'required|string|max:255',
             'last_name' => 'required|string|max:255',
             'username' => ['required', 'string', 'max:255', 'unique:users,username'],
-            'usertype' => 'required|string|max:255', 
+            'usertype' => 'required|string|max:255',
         ]);
 
         $user = new User;
@@ -389,7 +389,7 @@ class AdminController extends Controller
         $user->username = $request->username;
         $user->usertype = $request->usertype;
 
-        $defaultPassword = 'Password123'; 
+        $defaultPassword = 'Password123';
         $user->password = bcrypt($defaultPassword);
 
         $user->save();
@@ -403,7 +403,7 @@ class AdminController extends Controller
             'description' => "{$user->username} ({$usertype}) Created a new Staff",
         ]);
 
-        return redirect('/admin/staff')->with('success','Staff Created Successfully');
+        return redirect('/admin/staff')->with('success', 'Staff Created Successfully');
     }
 
     public function editStaff($id)
@@ -496,7 +496,7 @@ class AdminController extends Controller
 
         if (request()->ajax()) {
             return response()->json([
-                'data' => $products->items(), 
+                'data' => $products->items(),
                 'pagination' => [
                     'current_page' => $products->currentPage(),
                     'last_page' => $products->lastPage(),
@@ -526,9 +526,19 @@ class AdminController extends Controller
             $result = Product::where('id', 'LIKE', '%' . $search . '%')
                 ->orWhere('name', 'LIKE', '%' . $search . '%')
                 ->with(['category', 'supplier', 'unit']) // Ensure related data is loaded
-                ->get(['id', 'name', 'unit_id', 'cost_price', 'sell_price',
-                    'quantity', 'category_id', 'supplier_id', 'reorder_level',
-                    'stock_alert_threshold', 'expiration_date']);
+                ->get([
+                    'id',
+                    'name',
+                    'unit_id',
+                    'cost_price',
+                    'sell_price',
+                    'quantity',
+                    'category_id',
+                    'supplier_id',
+                    'reorder_level',
+                    'stock_alert_threshold',
+                    'expiration_date'
+                ]);
 
             // Transform results to include related names
             $formattedResult = $result->map(function ($product) {
@@ -573,7 +583,7 @@ class AdminController extends Controller
 
         $products = $query->with(['unit', 'category', 'supplier'])->paginate(10);
 
-        $formattedProducts = $products->getCollection()->map(function($product) {
+        $formattedProducts = $products->getCollection()->map(function ($product) {
             return [
                 'id' => $product->id,
                 'name' => $product->name,
@@ -605,9 +615,9 @@ class AdminController extends Controller
     {
         $request->validate([
             'name' => 'required|string|max:255',
-            'category_id' => 'required|exists:categories,id',  
-            'supplier_id' => 'required|exists:suppliers,id', 
-            'unit_id' => 'required|exists:units,id',  
+            'category_id' => 'required|exists:categories,id',
+            'supplier_id' => 'required|exists:suppliers,id',
+            'unit_id' => 'required|exists:units,id',
             'cost_price' => 'required|numeric|min:0',
             'sell_price' => 'required|numeric|min:0',
             'quantity' => 'required|integer|min:0',
@@ -618,7 +628,7 @@ class AdminController extends Controller
 
         $product = Product::create($request->all());
         $user = Auth::user();
-        $usertype = $user->usertype; 
+        $usertype = $user->usertype;
 
         ActivityLog::create([
             'user_id' => $user->id,
@@ -626,7 +636,7 @@ class AdminController extends Controller
             'description' => "{$user->username} ({$usertype}) Created Product ID: $product->id",
         ]);
 
-        return redirect('/admin/products')->with('success','Product Created Successfuly');
+        return redirect('/admin/products')->with('success', 'Product Created Successfuly');
     }
 
     public function editProduct($id)
@@ -649,15 +659,15 @@ class AdminController extends Controller
         $product = Product::findOrFail($id);
         $request->validate([
             'name' => 'required|string|max:255',
-            'category_id' => 'required|exists:categories,id',  
-            'supplier_id' => 'required|exists:suppliers,id',  
+            'category_id' => 'required|exists:categories,id',
+            'supplier_id' => 'required|exists:suppliers,id',
             'cost_price' => 'required|numeric|min:0',
             'sell_price' => 'required|numeric|min:0',
             'quantity' => 'required|integer|min:0',
             'expiration_date' => 'nullable|date|after:today',
         ]);
 
-        $product->update($request->all()); 
+        $product->update($request->all());
 
         $user = Auth::user();
         $usertype = $user->usertype;
@@ -698,14 +708,14 @@ class AdminController extends Controller
         $product = Product::find($request->product_id);
 
         $product->quantity += $request->quantity;
-        $product->save(); 
+        $product->save();
 
         StockMovement::create([
             'product_id' => $product->id,
             'type' => 'Added',
             'quantity' => $request->quantity,
         ]);
-        
+
 
         // Log the activity
         $user = Auth::user();
@@ -724,7 +734,7 @@ class AdminController extends Controller
 
     public function viewCategory()
     {
-        $categories = Category::orderBy('id','asc')->paginate(10);
+        $categories = Category::orderBy('id', 'asc')->paginate(10);
         return view('admin.categories.index_category', [
             'categories' => $categories
         ]);
@@ -758,7 +768,7 @@ class AdminController extends Controller
         $category = Category::create($request->all());
 
         $user = Auth::user();
-        $usertype = $user->usertype; 
+        $usertype = $user->usertype;
 
         ActivityLog::create([
             'user_id' => $user->id,
@@ -766,7 +776,7 @@ class AdminController extends Controller
             'description' => "{$user->username} ({$usertype}) Created Category Titled $category->name",
         ]);
 
-        return redirect('/admin/category')->with('success','Category Created Successfuly');
+        return redirect('/admin/category')->with('success', 'Category Created Successfuly');
     }
 
     public function editCategory($id)
@@ -782,7 +792,7 @@ class AdminController extends Controller
             'name' => 'required|string|max:255',
         ]);
 
-        $category->update($request->all()); 
+        $category->update($request->all());
 
         $user = Auth::user();
         $usertype = $user->usertype;
@@ -817,7 +827,7 @@ class AdminController extends Controller
 
     public function viewUnit()
     {
-        $units = Unit::orderBy('id','asc')->paginate(10);
+        $units = Unit::orderBy('id', 'asc')->paginate(10);
         return view('admin.units.index_unit', [
             'units' => $units
         ]);
@@ -851,7 +861,7 @@ class AdminController extends Controller
         $unit = Unit::create($request->all());
 
         $user = Auth::user();
-        $usertype = $user->usertype; 
+        $usertype = $user->usertype;
 
         ActivityLog::create([
             'user_id' => $user->id,
@@ -859,7 +869,7 @@ class AdminController extends Controller
             'description' => "{$user->username} ({$usertype}) Created Unit Titled $unit->name",
         ]);
 
-        return redirect('/admin/unit')->with('success','Unit Created Successfuly');
+        return redirect('/admin/unit')->with('success', 'Unit Created Successfuly');
     }
 
     public function editUnit($id)
@@ -875,7 +885,7 @@ class AdminController extends Controller
             'name' => 'required|string|max:255',
         ]);
 
-        $unit->update($request->all()); 
+        $unit->update($request->all());
 
         $user = Auth::user();
         $usertype = $user->usertype;
@@ -936,7 +946,7 @@ class AdminController extends Controller
         $supplier = Supplier::create($request->all());
 
         $user = Auth::user();
-        $usertype = $user->usertype; 
+        $usertype = $user->usertype;
 
         ActivityLog::create([
             'user_id' => $user->id,
@@ -944,7 +954,7 @@ class AdminController extends Controller
             'description' => "{$user->username} ({$usertype}) Created Supplier ID: $supplier->id",
         ]);
 
-        return redirect('/admin/supplier')->with('success','Supplier Created Successfuly');
+        return redirect('/admin/supplier')->with('success', 'Supplier Created Successfuly');
     }
 
     public function editSupplier($id)
@@ -962,7 +972,7 @@ class AdminController extends Controller
             'address' => 'required|string|max:255',
         ]);
 
-        $supplier->update($request->all()); 
+        $supplier->update($request->all());
 
         $user = Auth::user();
         $usertype = $user->usertype;
@@ -1029,8 +1039,8 @@ class AdminController extends Controller
                     'unit' => $product->unit->name ?? 'No Unit',
                     'cost_price' => $product->cost_price,
                     'quantity' => $product->quantity,
-                    'expiration_date' => $product->expiration_date 
-                        ? Carbon::parse($product->expiration_date)->format('m/d/Y') 
+                    'expiration_date' => $product->expiration_date
+                        ? Carbon::parse($product->expiration_date)->format('m/d/Y')
                         : 'N/A'
                 ];
             });
@@ -1128,7 +1138,7 @@ class AdminController extends Controller
             $driver = User::find($request->driver_id);
             $driverUsername = $driver ? $driver->username : 'Unknown Driver';
             $driverId = $driver ? $driver->id : 'Unknown ID';
-    
+
             // Assign driver
             $delivery->user_id = $driverId;
             $delivery->status = 'ONGOING';
@@ -1168,7 +1178,7 @@ class AdminController extends Controller
         ]);
 
         return response()->json([
-            'message' => $message, 
+            'message' => $message,
             'redirect' => url('/admin/deliveries')
         ]);
     }
@@ -1176,8 +1186,8 @@ class AdminController extends Controller
     public function viewCompleteDeliveries()
     {
         $deliveries = Delivery::where('status', 'COMPLETE')
-        ->with(['user', 'sale'])
-        ->orderBy('id','desc')->paginate(10);
+            ->with(['user', 'sale'])
+            ->orderBy('updated_at', 'desc')->paginate(10);
         return view('admin.orders.complete_deliveries', [
             'deliveries' => $deliveries
         ]);
@@ -1189,26 +1199,6 @@ class AdminController extends Controller
 
         return view('admin.receipts.index_receipt', [
             'sale' => $sale,
-        ]);
-    }
-
-    public function getVerificationPhoto(Delivery $delivery)
-    {
-        // Check if photo exists
-        if (empty($delivery->verification)) {
-            abort(404, 'No verification photo exists for this delivery');
-        }
-
-        // Get the full path to the image
-        $fullPath = storage_path('app/public/' . $delivery->verification);
-        if (!file_exists($fullPath)) {
-            abort(404, 'Verification photo not found in storage');
-        }
-
-        // Return the image as a response
-        return response()->file($fullPath, [
-            'Content-Type' => 'image/jpeg',
-            'Cache-Control' => 'private, max-age=3600'
         ]);
     }
 
@@ -1260,27 +1250,29 @@ class AdminController extends Controller
                 DB::raw('SUM(sale_items.quantity * products.sell_price) - SUM(sale_items.quantity * products.cost_price) as total_profit')
             )
             ->groupBy('products.id', 'products.name', 'units.name', 'products.cost_price', 'products.sell_price');
-            
-            if ($profitFilter == 'profit_asc') {
-                $sales->orderBy(DB::raw('SUM(sale_items.quantity * products.sell_price) - SUM(sale_items.quantity * products.cost_price)'), 'asc');
-            } elseif ($profitFilter == 'profit_desc') {
-                $sales->orderBy(DB::raw('SUM(sale_items.quantity * products.sell_price) - SUM(sale_items.quantity * products.cost_price)'), 'desc');
-            } elseif ($profitFilter == 'quantity_sold') {
-                $sales->orderBy(DB::raw('SUM(sale_items.quantity)'), 'desc');
-            }
 
-            $sales = $sales->paginate(10);
+        if ($profitFilter == 'profit_asc') {
+            $sales->orderBy(DB::raw('SUM(sale_items.quantity * products.sell_price) - SUM(sale_items.quantity * products.cost_price)'), 'asc');
+        } elseif ($profitFilter == 'profit_desc') {
+            $sales->orderBy(DB::raw('SUM(sale_items.quantity * products.sell_price) - SUM(sale_items.quantity * products.cost_price)'), 'desc');
+        } elseif ($profitFilter == 'quantity_sold') {
+            $sales->orderBy(DB::raw('SUM(sale_items.quantity)'), 'desc');
+        }
+
+        $sales = $sales->paginate(10);
 
         return view('admin.reports.sales_report', compact('sales'));
     }
 
     public function inventoryReport(Request $request)
     {
-        // Get the filter type selected by the user
         $filter = $request->input('filter', 'daily');
         $stockFilter = $request->input('stockFilter');
+        $unitId = $request->input('unit');
+        $supplierId = $request->input('supplier');
+        $categoryId = $request->input('category');
 
-        // Set default date range values based on the selected filter
+        // Date range based on filter
         switch ($filter) {
             case 'daily':
                 $startDate = Carbon::today();
@@ -1304,12 +1296,12 @@ class AdminController extends Controller
                 break;
         }
 
-        // Fetch inventory data, including stock movements and current stock
+        // Main query with joins
         $inventory = Product::with('category', 'supplier', 'unit')
             ->leftJoin('stock_movements', 'products.id', '=', 'stock_movements.product_id')
-            ->leftJoin('units', 'products.unit_id', '=', 'units.id')  
-            ->leftJoin('categories', 'products.category_id', '=', 'categories.id')  
-            ->leftJoin('suppliers', 'products.supplier_id', '=', 'suppliers.id')  
+            ->leftJoin('units', 'products.unit_id', '=', 'units.id')
+            ->leftJoin('categories', 'products.category_id', '=', 'categories.id')
+            ->leftJoin('suppliers', 'products.supplier_id', '=', 'suppliers.id')
             ->select(
                 'products.id as product_id',
                 'products.name as product_name',
@@ -1323,28 +1315,62 @@ class AdminController extends Controller
                 'products.stock_alert_threshold',
                 DB::raw('products.quantity * products.sell_price as total_value')
             )
-            ->whereBetween('stock_movements.created_at', [$startDate, $endDate]) 
-            ->groupBy('products.id', 'products.name', 'units.name', 'products.quantity', 'categories.name', 'suppliers.name', 'products.reorder_level', 'products.stock_alert_threshold', 'products.sell_price');
-            
-            if ($request->has('stockFilter')) {
-                $inventory->whereBetween('stock_movements.created_at', [$startDate, $endDate]);
-            }
+            ->whereBetween('stock_movements.created_at', [$startDate, $endDate]);
 
-            if ($stockFilter == 'stockAdded_asc') {
-                $inventory->orderByRaw('SUM(CASE WHEN stock_movements.type = "Added" THEN stock_movements.quantity ELSE 0 END) ASC');
-            } elseif ($stockFilter == 'stockAdded_desc') {
-                $inventory->orderByRaw('SUM(CASE WHEN stock_movements.type = "Added" THEN stock_movements.quantity ELSE 0 END) DESC');
-            } elseif ($stockFilter == 'stockSold_asc') {
-                $inventory->orderByRaw('SUM(CASE WHEN stock_movements.type = "Sold" THEN stock_movements.quantity ELSE 0 END) ASC');
-            } elseif ($stockFilter == 'stockSold_desc') {
-                $inventory->orderByRaw('SUM(CASE WHEN stock_movements.type = "Sold" THEN stock_movements.quantity ELSE 0 END) DESC');
-            }
-            
-            $inventory = $inventory->paginate(10);
+        // Additional filtering by unit, supplier, and category
+        if ($unitId) {
+            $inventory->where('products.unit_id', $unitId);
+        }
 
+        if ($supplierId) {
+            $inventory->where('products.supplier_id', $supplierId);
+        }
 
-        return view('admin.reports.inventory_report', compact('inventory', 'filter', 'stockFilter'));
+        if ($categoryId) {
+            $inventory->where('products.category_id', $categoryId);
+        }
+
+        // Sorting based on stock filter
+        if ($stockFilter == 'stockAdded_asc') {
+            $inventory->orderByRaw('SUM(CASE WHEN stock_movements.type = "Added" THEN stock_movements.quantity ELSE 0 END) ASC');
+        } elseif ($stockFilter == 'stockAdded_desc') {
+            $inventory->orderByRaw('SUM(CASE WHEN stock_movements.type = "Added" THEN stock_movements.quantity ELSE 0 END) DESC');
+        } elseif ($stockFilter == 'stockSold_asc') {
+            $inventory->orderByRaw('SUM(CASE WHEN stock_movements.type = "Sold" THEN stock_movements.quantity ELSE 0 END) ASC');
+        } elseif ($stockFilter == 'stockSold_desc') {
+            $inventory->orderByRaw('SUM(CASE WHEN stock_movements.type = "Sold" THEN stock_movements.quantity ELSE 0 END) DESC');
+        }
+
+        $inventory = $inventory->groupBy(
+            'products.id',
+            'products.name',
+            'units.name',
+            'products.quantity',
+            'categories.name',
+            'suppliers.name',
+            'products.reorder_level',
+            'products.stock_alert_threshold',
+            'products.sell_price'
+        )->paginate(10);
+
+        // Load filters for dropdowns in view
+        $units = Unit::all();
+        $categories = Category::all();
+        $suppliers = Supplier::all();
+
+        return view('admin.reports.inventory_report', compact(
+            'inventory',
+            'filter',
+            'stockFilter',
+            'unitId',
+            'supplierId',
+            'categoryId',
+            'units',
+            'suppliers',
+            'categories'
+        ));
     }
+
 
     public function cashierReport(Request $request)
     {
@@ -1405,7 +1431,7 @@ class AdminController extends Controller
 
         $itemsSold = $itemsSoldQuery
             ->select(
-                DB::raw("CONCAT(categories.prefix, '-', products.id) as product_code"), 
+                DB::raw("CONCAT(categories.prefix, '-', products.id) as product_code"),
                 'products.name',
                 DB::raw('SUM(sale_items.quantity) as quantity'),
                 DB::raw('SUM(sale_items.quantity * sale_items.price) as revenue')
@@ -1413,15 +1439,15 @@ class AdminController extends Controller
             ->groupBy('products.id', 'products.name', 'categories.prefix')
             ->get();
 
-            $topSellingItemsQuery = SaleItem::join('products', 'sale_items.product_id', '=', 'products.id')
+        $topSellingItemsQuery = SaleItem::join('products', 'sale_items.product_id', '=', 'products.id')
             ->join('sales', 'sale_items.sale_id', '=', 'sales.id')
             ->join('categories', 'products.category_id', '=', 'categories.id')
             ->whereBetween('sales.created_at', [$startDate, $endDate]);
-        
+
         if ($request->has('cashier_id') && $request->cashier_id != 'all') {
             $topSellingItemsQuery->where('sales.user_id', $request->cashier_id);
         }
-        
+
         $topSellingItems = $topSellingItemsQuery
             ->select(
                 DB::raw("CONCAT(categories.prefix, '-', products.id) as product_code"),
@@ -1433,21 +1459,21 @@ class AdminController extends Controller
             ->limit(5)
             ->get();
 
-            if ($filter === 'daily') {
-                $reportDate = $startDate->format('F j, Y');
-                $timeRange = '8:00 AM - 5:00 PM';
-            } else {
-                $reportDate = $startDate->format('F j, Y') . ' - ' . $endDate->format('F j, Y');
-                $timeRange = '8:00 AM - 5:00 PM';
-            }
+        if ($filter === 'daily') {
+            $reportDate = $startDate->format('F j, Y');
+            $timeRange = '8:00 AM - 5:00 PM';
+        } else {
+            $reportDate = $startDate->format('F j, Y') . ' - ' . $endDate->format('F j, Y');
+            $timeRange = '8:00 AM - 5:00 PM';
+        }
 
         $selectedCashier = User::find($request->cashier_id);
         $cashierName = null;
 
-            if ($request->has('cashier_id') && $request->cashier_id != 'all') {
-                $selectedCashier = User::find($request->cashier_id);
-                $cashierName = $selectedCashier ? $selectedCashier->first_name . ' ' . $selectedCashier->last_name : null;
-            }
+        if ($request->has('cashier_id') && $request->cashier_id != 'all') {
+            $selectedCashier = User::find($request->cashier_id);
+            $cashierName = $selectedCashier ? $selectedCashier->first_name . ' ' . $selectedCashier->last_name : null;
+        }
 
         return view('admin.reports.cashier_report', compact(
             'sales',
@@ -1460,6 +1486,85 @@ class AdminController extends Controller
             'averageTransactionValue',
             'itemsSold',
             'topSellingItems',
+            'filter'
+        ));
+    }
+
+    public function viewDeliveryReport(Request $request)
+    {
+        $drivers = User::where('usertype', 'Driver')->get();
+
+        $query = Delivery::with(['user', 'sale.customer'])
+            ->whereHas('user', function ($q) {
+                $q->where('usertype', 'Driver');
+            });
+
+        $filter = $request->input('filter', 'daily');
+
+        switch ($filter) {
+            case 'daily':
+                $startDate = Carbon::today();
+                $endDate = Carbon::today()->endOfDay();
+                break;
+            case 'weekly':
+                $startDate = Carbon::now()->startOfWeek();
+                $endDate = Carbon::now()->endOfWeek();
+                break;
+            case 'monthly':
+                $startDate = Carbon::now()->startOfMonth();
+                $endDate = Carbon::now()->endOfMonth();
+                break;
+            case 'yearly':
+                $startDate = Carbon::now()->startOfYear();
+                $endDate = Carbon::now()->endOfYear();
+                break;
+            default:
+                $startDate = Carbon::now()->startOfMonth();
+                $endDate = Carbon::now()->endOfMonth();
+                break;
+        }
+
+        $query->whereBetween('updated_at', [$startDate, $endDate]);
+
+        if ($request->has('driver_id') && $request->driver_id != 'all') {
+            $query->where('user_id', $request->driver_id);
+        }
+
+        // Clone query before pagination
+        $totalDeliveriesQuery = clone $query;
+        $deliveries = $query->orderBy('updated_at', 'desc')->paginate(10);
+
+        $totalDeliveries = $totalDeliveriesQuery->count();
+        $successfulDeliveries = $totalDeliveriesQuery->where('status', 'COMPLETED')->count();
+        $failedDeliveries = $totalDeliveriesQuery->where('status', 'FAILED')->count();
+        $pendingDeliveries = $totalDeliveriesQuery->where('status', 'PENDING')->count();
+
+        if ($filter === 'daily') {
+            $reportDate = $startDate->format('F j, Y');
+            $timeRange = '8:00 AM - 5:00 PM';
+        } else {
+            $reportDate = $startDate->format('F j, Y') . ' - ' . $endDate->format('F j, Y');
+            $timeRange = '8:00 AM - 5:00 PM';
+        }
+
+        $selectedDriver = null;
+        $driverName = null;
+
+        if ($request->has('driver_id') && $request->driver_id != 'all') {
+            $selectedDriver = User::find($request->driver_id);
+            $driverName = $selectedDriver ? $selectedDriver->first_name . ' ' . $selectedDriver->last_name : null;
+        }
+
+        return view('admin.reports.delivery_report', compact(
+            'deliveries',
+            'drivers',
+            'reportDate',
+            'timeRange',
+            'driverName',
+            'totalDeliveries',
+            'successfulDeliveries',
+            'failedDeliveries',
+            'pendingDeliveries',
             'filter'
         ));
     }
@@ -1483,7 +1588,7 @@ class AdminController extends Controller
         }
 
         $activityLogs = $query->paginate(10);
-        
+
         return view('admin.activityLog.index_activityLog', [
             'activity_logs' => $activityLogs,
             'selectedUsertype' => $request->input('usertype'),

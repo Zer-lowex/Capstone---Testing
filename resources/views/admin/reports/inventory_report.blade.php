@@ -4,49 +4,101 @@
 
 @section('content')
 
-<h1 class="title">Reports</h1>
-<ul class="breadcrumbs">
-    <li><a href="#">Home</a></li>
-    <li class="divider">/</li>
-    <li><a href="#" class="active">Inventory Report</a></li>
-</ul>
+    <h1 class="title">Reports</h1>
+    <ul class="breadcrumbs">
+        <li><a href="#">Home</a></li>
+        <li class="divider">/</li>
+        <li><a href="#" class="active">Inventory Report</a></li>
+    </ul>
 
     <div class="info-data">
         <div class="container">
             <div class="col-md-12">
-                
+
                 <div class="container-data">
                     <div class="head d-flex align-items-center justify-content-between">
                         <h4>Inventory Report</h4>
                         <div class="d-flex align-items-center">
                             <button id="btnPrint" class="btn btn-primary"><i class="bx bxs-printer"></i></button>
-                        </div> 
+                        </div>
                     </div>
-                        <form method="GET" action="{{ route('admin.inventory.view') }}">
+                    <!-- Filter Toggle Button -->
+                    <div class="d-flex justify-content-center mb-2">
+                        <button class="btn btn-primary" type="button" data-bs-toggle="collapse"
+                            data-bs-target="#filterOptions" aria-expanded="false" aria-controls="filterOptions">
+                            Filter Options
+                        </button>
+                        <a href="{{ route('admin.inventory.view') }}" class="btn btn-secondary ms-2">Reset Filters</a>
+                    </div>
+
+                    <!-- Collapsible Filter Form -->
+                    <div class="collapse" id="filterOptions">
+                        <form method="GET" action="{{ route('admin.inventory.view') }}"
+                            class="border p-3 rounded bg-light">
                             <div class="row">
-                                <div class="col-md-3">
-                                    <select name="filter" class="form-control">
-                                        <option value="daily" {{ request('filter') == 'daily' ? 'selected' : '' }}>Daily</option>
-                                        <option value="weekly" {{ request('filter') == 'weekly' ? 'selected' : '' }}>Weekly</option>
-                                        <option value="monthly" {{ request('filter') == 'monthly' ? 'selected' : '' }}>Monthly</option>
-                                        <option value="yearly" {{ request('filter') == 'yearly' ? 'selected' : '' }}>Yearly</option>
+                                <!-- Category Filter -->
+                                <div class="col-md-3 mb-3">
+                                    <label for="category" class="form-label">Category</label>
+                                    <select id="category" name="category" class="form-select">
+                                        <option value="">All Categories</option>
+                                        @foreach ($categories as $category)
+                                            <option value="{{ $category->id }}"
+                                                {{ request('category') == $category->id ? 'selected' : '' }}>
+                                                {{ $category->name }}
+                                            </option>
+                                        @endforeach
                                     </select>
                                 </div>
-                                <div class="col-md-3">
-                                    <select name="stockFilter" class="form-control">
-                                        <option value="">Sort by Stock</option>
-                                        <option value="stockAdded_asc" {{ request('stockFilter') == 'stockAdded_asc' ? 'selected' : '' }}>Stock Add: Low to High</option>
-                                        <option value="stockAdded_desc" {{ request('stockFilter') == 'stockAdded_desc' ? 'selected' : '' }}>Stock Add: High to Low</option>
-                                        <option value="stockSold_asc" {{ request('stockFilter') == 'stockSold_asc' ? 'selected' : '' }}>Stock Sold: Low to High</option>
-                                        <option value="stockSold_desc" {{ request('stockFilter') == 'stockSold_desc' ? 'selected' : '' }}>Stock Sold: High to Low</option>
+
+                                <!-- Unit Filter -->
+                                <div class="col-md-3 mb-3">
+                                    <label for="unit" class="form-label">Unit</label>
+                                    <select id="unit" name="unit" class="form-select">
+                                        <option value="">All Units</option>
+                                        @foreach ($units as $unit)
+                                            <option value="{{ $unit->id }}"
+                                                {{ request('unit') == $unit->id ? 'selected' : '' }}>
+                                                {{ $unit->name }}
+                                            </option>
+                                        @endforeach
                                     </select>
                                 </div>
-                                <div class="col-md-3">
-                                    <button type="submit" class="btn btn-primary">Filter</i></button>
-                                    <a href="{{ route('admin.inventory.view') }}" class="btn btn-secondary">Reset Filter</a>
+
+                                <!-- Supplier Filter -->
+                                <div class="col-md-3 mb-3">
+                                    <label for="supplier" class="form-label">Supplier</label>
+                                    <select id="supplier" name="supplier" class="form-select">
+                                        <option value="">All Suppliers</option>
+                                        @foreach ($suppliers as $supplier)
+                                            <option value="{{ $supplier->id }}"
+                                                {{ request('supplier') == $supplier->id ? 'selected' : '' }}>
+                                                {{ $supplier->name }}
+                                            </option>
+                                        @endforeach
+                                    </select>
+                                </div>
+
+                                <!-- Date Filter -->
+                                <div class="col-md-3 mb-3">
+                                    <label for="filter" class="form-label">Date Filter</label>
+                                    <select name="filter" id="filter" class="form-select">
+                                        <option value="daily" {{ request('filter') == 'daily' ? 'selected' : '' }}>Daily
+                                        </option>
+                                        <option value="weekly" {{ request('filter') == 'weekly' ? 'selected' : '' }}>Weekly
+                                        </option>
+                                        <option value="monthly" {{ request('filter') == 'monthly' ? 'selected' : '' }}>
+                                            Monthly</option>
+                                        <option value="yearly" {{ request('filter') == 'yearly' ? 'selected' : '' }}>Yearly
+                                        </option>
+                                    </select>
                                 </div>
                             </div>
+
+                            <div class="text-end">
+                                <button type="submit" class="btn btn-success">Apply Filters</button>
+                            </div>
                         </form>
+                    </div>
 
                     <div class="data">
                         <table id="orderTable" class="table table-striped table-bordered text-center align-middle">
@@ -92,40 +144,40 @@
                             </tbody>
                         </table>
                         {{ $inventory->links() }}
-                    </div>                  
+                    </div>
                 </div>
             </div>
         </div>
     </div>
 
-<!-- jQuery for AJAX -->
-<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-<script>
-    document.getElementById('btnPrint').addEventListener('click', function () {
-        document.querySelectorAll('.id-column').forEach(el => el.style.display = 'none');
+    <!-- jQuery for AJAX -->
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script>
+        document.getElementById('btnPrint').addEventListener('click', function() {
+            document.querySelectorAll('.id-column').forEach(el => el.style.display = 'none');
 
-        // Get the table's HTML
-        const table = document.getElementById('orderTable').outerHTML;
-        
-        // Get the selected filter from the dropdown (or fallback to 'Monthly' if no filter is selected)
-        const filter = "{{ request('filter', 'monthly') }}";
+            // Get the table's HTML
+            const table = document.getElementById('orderTable').outerHTML;
 
-        // Set the title based on the selected filter
-        let reportTitle = "Inventory Report";  // Default title
+            // Get the selected filter from the dropdown (or fallback to 'Monthly' if no filter is selected)
+            const filter = "{{ request('filter', 'monthly') }}";
 
-        if (filter === 'daily') {
-            reportTitle = "Daily Inventory Report";
-        } else if (filter === 'weekly') {
-            reportTitle = "Weekly Inventory Report";
-        } else if (filter === 'monthly') {
-            reportTitle = "Monthly Inventory Report";
-        } else if (filter === 'yearly') {
-            reportTitle = "Yearly Inventory Report";
-        }
+            // Set the title based on the selected filter
+            let reportTitle = "Inventory Report"; // Default title
 
-        // Open a print window and include the table HTML
-        const printWindow = window.open('', '', 'width=800,height=600');
-        printWindow.document.write(`
+            if (filter === 'daily') {
+                reportTitle = "Daily Inventory Report";
+            } else if (filter === 'weekly') {
+                reportTitle = "Weekly Inventory Report";
+            } else if (filter === 'monthly') {
+                reportTitle = "Monthly Inventory Report";
+            } else if (filter === 'yearly') {
+                reportTitle = "Yearly Inventory Report";
+            }
+
+            // Open a print window and include the table HTML
+            const printWindow = window.open('', '', 'width=800,height=600');
+            printWindow.document.write(`
             <!DOCTYPE html>
             <html>
             <head>
@@ -214,14 +266,13 @@
             </body>
             </html>
         `);
-        printWindow.document.close();
-        printWindow.print();
+            printWindow.document.close();
+            printWindow.print();
 
-        setTimeout(() => {
-            document.querySelectorAll('.id-column').forEach(el => el.style.display = '');
-        }, 100);
-    });
-</script>
+            setTimeout(() => {
+                document.querySelectorAll('.id-column').forEach(el => el.style.display = '');
+            }, 100);
+        });
+    </script>
 
 @endsection
-

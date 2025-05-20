@@ -88,12 +88,21 @@
                         </div>
                     </div>
                 </div>
+                {{-- LOW STOCK COUNTER --}}
                 <div class="dash-card">
                     <div class="head">
                         <i class="bx bx-down-arrow-circle icon"></i>
-                        <div>
-                            <span class="count">{{ $lowStockCount }} | {{ $stockAlertThresholdCount }}</span>
-                            <p>Low Stock</p>
+                        <div class="low-stock-indicator">
+                            <span class="badge bg-warning fs-5" title="Items with low stock (below warning threshold)"
+                                data-bs-toggle="tooltip">{{ $lowStockCount }}</span>
+
+                            <span class="text-muted mx-2">|</span>
+
+                            <span class="badge bg-danger fs-5"
+                                title="Critical items (below danger threshold - urgent restock needed)"
+                                data-bs-toggle="tooltip">{{ $stockAlertThresholdCount }}</span>
+
+                            <p class="mt-2 mb-0">Low Stock</p>
                         </div>
                     </div>
                 </div>
@@ -106,12 +115,26 @@
                         </div>
                     </div>
                 </div>
+                {{-- EXPIRY COUNTER --}}
                 <div class="dash-card">
                     <div class="head">
                         <i class="bx bx-alarm-exclamation icon"></i>
-                        <div>
-                            <span class="count">{{ $almostExpiredCount }} | {{ $expiredCount }}</span>
-                            <p>Expiry Date</p>
+                        <div class="expiry-indicator">
+                            <span 
+                                class="badge bg-warning fs-5" 
+                                title="Products nearing expiration (close to expiry date)"
+                                data-bs-toggle="tooltip"
+                            >{{ $almostExpiredCount }}</span>
+                            
+                            <span class="text-muted mx-2">|</span>
+                            
+                            <span 
+                                class="badge bg-danger fs-5" 
+                                title="Expired products (past expiry date - remove from inventory)"
+                                data-bs-toggle="tooltip"
+                            >{{ $expiredCount }}</span>
+                            
+                            <p class="mt-2 mb-0">Expiry Date</p>
                         </div>
                     </div>
                 </div>
@@ -137,10 +160,12 @@
 
             <div class="data">
                 <div class="content-data">
-                                        
+
                     <div class="container-data">
                         <div class="head">
-                            <h3><center>Top Products Sold</center></h3>
+                            <h3>
+                                <center>Top Products Sold</center>
+                            </h3>
                         </div>
                         <div class="top-products">
                             <div id="bar-chart"></div>
@@ -148,7 +173,9 @@
                     </div>
                     <div class="container-data">
                         <div class="head">
-                            <center><h3>Top 5 Categories Sold</h3></center>
+                            <center>
+                                <h3>Top 5 Categories Sold</h3>
+                            </center>
                         </div>
                         <div class="top-products">
                             <div id="pie-chart"></div>
@@ -160,7 +187,7 @@
                 <div class="content-data">
                     <div class="head">
                         <h3>Activity Log</h3>
-                        <a href="{{ route('admin.activityLog.view') }}" >View All</a>
+                        <a href="{{ route('admin.activityLog.view') }}">View All</a>
                     </div>
                     <div class="container-data">
                         <table class="table table-striped table-bordered text-center align-middle activity-table">
@@ -174,7 +201,8 @@
                             <tbody>
                                 @if ($activity_logs->isEmpty())
                                     <tr>
-                                        <td colspan="3" class="text-center text-muted">No records found for the selected filters.</td>
+                                        <td colspan="3" class="text-center text-muted">No records found for the
+                                            selected filters.</td>
                                     </tr>
                                 @else
                                     @foreach ($activity_logs as $activityLog)
@@ -191,7 +219,7 @@
                 </div>
 
             </div>
-            
+
         </main>
         <!-- MAIN -->
 
@@ -201,10 +229,10 @@
 
     <script src="https://cdn.jsdelivr.net/npm/apexcharts"></script>
     <script src="{{ asset('assets/js/scripts.js') }}"></script>
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/js/bootstrap.bundle.min.js" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/js/bootstrap.bundle.min.js" crossorigin="anonymous">
+    </script>
 
     <script>
-        
         // TOP CATEGORIES
 
         var options = {
@@ -235,7 +263,7 @@
                 }
             }]
         };
-    
+
         var chart = new ApexCharts(document.querySelector("#pie-chart"), options);
         chart.render();
 
@@ -281,8 +309,8 @@
         var days = [];
         var profits = [];
 
-        dailyProfitData.forEach(function (item) {
-            days.push('Day ' + item.day); 
+        dailyProfitData.forEach(function(item) {
+            days.push('Day ' + item.day);
             profits.push(item.profit);
         });
 
@@ -302,11 +330,11 @@
                 curve: 'smooth'
             },
             xaxis: {
-                categories: days 
+                categories: days
             },
             tooltip: {
                 x: {
-                    format: 'dd/MM' 
+                    format: 'dd/MM'
                 }
             }
         };
@@ -320,9 +348,9 @@
         var weeks = [];
         var weeklyProfits = [];
 
-        weeklyProfitData.forEach(function (item) {
-            weeks.push('Week ' + item.week);  
-            weeklyProfits.push(item.profit);  
+        weeklyProfitData.forEach(function(item) {
+            weeks.push('Week ' + item.week);
+            weeklyProfits.push(item.profit);
         });
 
         var weeklyOptions = {
@@ -357,16 +385,16 @@
         var yearlyProfitData = @json($yearlyProfitData);
 
         var monthNames = [
-            'January', 'February', 'March', 'April', 'May', 'June', 
+            'January', 'February', 'March', 'April', 'May', 'June',
             'July', 'August', 'September', 'October', 'November', 'December'
         ];
 
         var months = [];
         var monthlyProfits = [];
 
-        yearlyProfitData.forEach(function (item) {
-            months.push(monthNames[item.month - 1]); 
-            monthlyProfits.push(item.profit);  
+        yearlyProfitData.forEach(function(item) {
+            months.push(monthNames[item.month - 1]);
+            monthlyProfits.push(item.profit);
         });
 
         var monthlyOptions = {
@@ -389,8 +417,8 @@
             },
             tooltip: {
                 x: {
-                    formatter: function (val) {
-                        return val; 
+                    formatter: function(val) {
+                        return val;
                     }
                 }
             }
@@ -401,27 +429,36 @@
 
 
         // Button Click Events for Displaying the Charts
-        document.getElementById('btnDaily').addEventListener('click', function () {
+        document.getElementById('btnDaily').addEventListener('click', function() {
             document.getElementById('dailyChart').style.display = 'block';
             document.getElementById('weeklyChart').style.display = 'none';
             document.getElementById('monthlyChart').style.display = 'none';
             dailyChart.render();
         });
 
-        document.getElementById('btnWeekly').addEventListener('click', function () {
+        document.getElementById('btnWeekly').addEventListener('click', function() {
             document.getElementById('dailyChart').style.display = 'none';
             document.getElementById('weeklyChart').style.display = 'block';
             document.getElementById('monthlyChart').style.display = 'none';
             weeklyChart.render();
         });
 
-        document.getElementById('btnYearly').addEventListener('click', function () {
+        document.getElementById('btnYearly').addEventListener('click', function() {
             document.getElementById('dailyChart').style.display = 'none';
             document.getElementById('weeklyChart').style.display = 'none';
             document.getElementById('monthlyChart').style.display = 'block';
             monthlyChart.render();
         });
-        
+    </script>
+
+    {{-- LOW STOCK AND EXPIRY HOVER --}}
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'));
+            tooltipTriggerList.map(function(tooltipTriggerEl) {
+                return new bootstrap.Tooltip(tooltipTriggerEl);
+            });
+        });
     </script>
 
 </body>

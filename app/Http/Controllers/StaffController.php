@@ -346,7 +346,7 @@ class StaffController extends Controller
 
     public function viewDeliveries(Request $request)
     {
-        $query = Delivery::query();
+        $query = Delivery::where('status', '!=', 'COMPLETE');
 
         // Apply filter if selected
         if ($request->has('filter') && !empty($request->filter)) {
@@ -365,7 +365,7 @@ class StaffController extends Controller
     {
         $deliveries = Delivery::where('status', 'COMPLETE')
         ->with(['user', 'sale'])
-        ->orderBy('id','desc')->paginate(10);
+        ->orderBy('updated_at','desc')->paginate(10);
         return view('staff.orders.complete_deliveries', [
             'deliveries' => $deliveries
         ]);
@@ -385,7 +385,7 @@ class StaffController extends Controller
     public function salesReport(Request $request)
     {
         // Get the filter type selected by the user
-        $filter = $request->input('filter', 'monthly');
+        $filter = $request->input('filter', 'daily');
         $profitFilter = $request->input('profitFilter');
 
         // Set default date range values based on the selected filter
@@ -444,11 +444,13 @@ class StaffController extends Controller
 
     public function inventoryReport(Request $request)
     {
-        // Get the filter type selected by the user
-        $filter = $request->input('filter', 'monthly');
+        $filter = $request->input('filter', 'daily');
         $stockFilter = $request->input('stockFilter');
+        $unitId = $request->input('unit');
+        $supplierId = $request->input('supplier');
+        $categoryId = $request->input('category');
 
-        // Set default date range values based on the selected filter
+        // Date range based on filter
         switch ($filter) {
             case 'daily':
                 $startDate = Carbon::today();
@@ -472,12 +474,12 @@ class StaffController extends Controller
                 break;
         }
 
-        // Fetch inventory data, including stock movements and current stock
+        // Main query with joins
         $inventory = Product::with('category', 'supplier', 'unit')
             ->leftJoin('stock_movements', 'products.id', '=', 'stock_movements.product_id')
-            ->leftJoin('units', 'products.unit_id', '=', 'units.id')  
-            ->leftJoin('categories', 'products.category_id', '=', 'categories.id')  
-            ->leftJoin('suppliers', 'products.supplier_id', '=', 'suppliers.id')  
+            ->leftJoin('units', 'products.unit_id', '=', 'units.id')
+            ->leftJoin('categories', 'products.category_id', '=', 'categories.id')
+            ->leftJoin('suppliers', 'products.supplier_id', '=', 'suppliers.id')
             ->select(
                 'products.id as product_id',
                 'products.name as product_name',
@@ -491,27 +493,60 @@ class StaffController extends Controller
                 'products.stock_alert_threshold',
                 DB::raw('products.quantity * products.sell_price as total_value')
             )
-            ->whereBetween('stock_movements.created_at', [$startDate, $endDate]) 
-            ->groupBy('products.id', 'products.name', 'units.name', 'products.quantity', 'categories.name', 'suppliers.name', 'products.reorder_level', 'products.stock_alert_threshold', 'products.sell_price');
-            
-            if ($request->has('stockFilter')) {
-                $inventory->whereBetween('stock_movements.created_at', [$startDate, $endDate]);
-            }
+            ->whereBetween('stock_movements.created_at', [$startDate, $endDate]);
 
-            if ($stockFilter == 'stockAdded_asc') {
-                $inventory->orderByRaw('SUM(CASE WHEN stock_movements.type = "Added" THEN stock_movements.quantity ELSE 0 END) ASC');
-            } elseif ($stockFilter == 'stockAdded_desc') {
-                $inventory->orderByRaw('SUM(CASE WHEN stock_movements.type = "Added" THEN stock_movements.quantity ELSE 0 END) DESC');
-            } elseif ($stockFilter == 'stockSold_asc') {
-                $inventory->orderByRaw('SUM(CASE WHEN stock_movements.type = "Sold" THEN stock_movements.quantity ELSE 0 END) ASC');
-            } elseif ($stockFilter == 'stockSold_desc') {
-                $inventory->orderByRaw('SUM(CASE WHEN stock_movements.type = "Sold" THEN stock_movements.quantity ELSE 0 END) DESC');
-            }
-            
-            $inventory = $inventory->paginate(10);
+        // Additional filtering by unit, supplier, and category
+        if ($unitId) {
+            $inventory->where('products.unit_id', $unitId);
+        }
 
+        if ($supplierId) {
+            $inventory->where('products.supplier_id', $supplierId);
+        }
 
-        return view('staff.reports.inventory_report', compact('inventory', 'filter', 'stockFilter'));
+        if ($categoryId) {
+            $inventory->where('products.category_id', $categoryId);
+        }
+
+        // Sorting based on stock filter
+        if ($stockFilter == 'stockAdded_asc') {
+            $inventory->orderByRaw('SUM(CASE WHEN stock_movements.type = "Added" THEN stock_movements.quantity ELSE 0 END) ASC');
+        } elseif ($stockFilter == 'stockAdded_desc') {
+            $inventory->orderByRaw('SUM(CASE WHEN stock_movements.type = "Added" THEN stock_movements.quantity ELSE 0 END) DESC');
+        } elseif ($stockFilter == 'stockSold_asc') {
+            $inventory->orderByRaw('SUM(CASE WHEN stock_movements.type = "Sold" THEN stock_movements.quantity ELSE 0 END) ASC');
+        } elseif ($stockFilter == 'stockSold_desc') {
+            $inventory->orderByRaw('SUM(CASE WHEN stock_movements.type = "Sold" THEN stock_movements.quantity ELSE 0 END) DESC');
+        }
+
+        $inventory = $inventory->groupBy(
+            'products.id',
+            'products.name',
+            'units.name',
+            'products.quantity',
+            'categories.name',
+            'suppliers.name',
+            'products.reorder_level',
+            'products.stock_alert_threshold',
+            'products.sell_price'
+        )->paginate(10);
+
+        // Load filters for dropdowns in view
+        $units = Unit::all();
+        $categories = Category::all();
+        $suppliers = Supplier::all();
+
+        return view('staff.reports.inventory_report', compact(
+            'inventory',
+            'filter',
+            'stockFilter',
+            'unitId',
+            'supplierId',
+            'categoryId',
+            'units',
+            'suppliers',
+            'categories'
+        ));
     }
     
     // ACTIVITY LOG

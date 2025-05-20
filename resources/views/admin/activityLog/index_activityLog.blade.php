@@ -71,13 +71,13 @@
                                 <th>USER</th>
                                 <th>ACTION</th>
                                 <th>DESCRIPTION</th>
-                                <th class="id-column"> </th>
+                                {{-- <th class="id-column"> </th> --}}
                             </tr>
                         </thead>
                         <tbody>
                             @if ($activity_logs->isEmpty())
                                 <tr>
-                                    <td colspan="6" class="text-center text-muted">No records found for the selected
+                                    <td colspan="5" class="text-center text-muted">No records found for the selected
                                         filters.</td>
                                 </tr>
                             @else
@@ -94,14 +94,14 @@
                                         </td>
                                         <td>{{ $activityLog->action }}</td>
                                         <td>{{ $activityLog->description }}</td>
-                                        <td class="id-column">
+                                        {{-- <td class="id-column">
                                             <button type="button" class="btn btn-danger" 
                                                 data-bs-toggle="modal" 
                                                 data-bs-target="#deleteActivityLogModal"
                                                 data-id="{{ $activityLog->id }}">
                                                 <i class="bx bxs-trash-alt"></i>
                                             </button>
-                                        </td>
+                                        </td> --}}
                                     </tr>
                                 @endforeach
                             @endif
