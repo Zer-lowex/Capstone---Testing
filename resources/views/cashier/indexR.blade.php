@@ -51,6 +51,13 @@
                     <!-- Search Section -->
                     <div class="col-md-8">
                         <div class="card p-3">
+                            @if (session('accepted_products'))
+                                <div class="mb-3">
+                                    <button type="button" id="cancelReservationBtn" class="btn btn-danger">
+                                        <i class="bx bx-x-circle"></i> Cancel Reservation
+                                    </button>
+                                </div>
+                            @endif
                             <h5>Search</h5>
                             <div class="search-bar-container">
                                 <input type="text" id="searchBar" class="form-control search-bar"
@@ -928,6 +935,38 @@
         }
 
         // ==================== FORM SUBMISSION ====================
+
+
+        $(document).on('click', '#cancelReservationBtn', function() {
+            if (confirm('Are you sure you want to cancel this reservation?')) {
+                $.ajax({
+                    url: '{{ route('cashier.cancelReservation') }}',
+                    method: 'POST',
+                    data: {
+                        _token: '{{ csrf_token() }}',
+                        customer_id: $('#customerSelect').val()
+                    },
+                    success: function(response) {
+                        if (response.success) {
+                            toastr.success(response.message);
+                            // Remove all reserved products from the table
+                            $('.addMoreProduct').empty();
+                            // Reset totals
+                            calculateTotals();
+                            // Remove the cancel button
+                            $('#cancelReservationBtn').remove();
+                            // Optionally reload the page to clear everything
+                            setTimeout(() => location.reload(), 1000);
+                        } else {
+                            toastr.error(response.message);
+                        }
+                    },
+                    error: function(xhr) {
+                        toastr.error('Error cancelling reservation');
+                    }
+                });
+            }
+        });
 
         function handleSubmit() {
             const paidAmount = parseFloat($('#paid_amount').val()) || 0;

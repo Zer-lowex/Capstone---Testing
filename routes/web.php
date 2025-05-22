@@ -214,9 +214,10 @@ Route::middleware(['auth', 'Cashier', 'PreventBackHistory'])->group(function () 
 
     Route::get('/cashier/products', [CashierController::class, 'viewProduct'])->name('cashier.product.view'); //View Products
     Route::get('/cashier/products/search', [CashierController::class, 'searchProduct'])->name('cashier.product.search'); //Search Product Function
-    Route::get('/cashier/products/reserved', [CashierController::class, 'reservedProduct'])->name('cashier.product.reserved'); //Search Product Function
+    Route::get('/cashier/products/reserved', [CashierController::class, 'reservedProduct'])->name('cashier.product.reserved'); 
     Route::post('/cashier/reservations/cancel', [CashierController::class, 'cancelReservation'])->name('cashier.reservations.cancel');
     Route::post('/cashier/reservations/accept', [CashierController::class, 'acceptReservation'])->name('cashier.reservations.accept');
+    Route::post('/cashier/cancel-reservation', [CashierController::class, 'cancelReservationPOS'])->name('cashier.cancelReservation'); // Cancel Reservation on POS
 
     Route::get('/cashier/customers', [CashierController::class, 'viewCustomer'])->name('customer.view'); //View Customers
     Route::get('/cashier/autocomplete', [CashierController::class, 'autocomplete'])->name('products.autocomplete');

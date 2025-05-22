@@ -172,14 +172,24 @@ class CashierController extends Controller
 
     public function reservedProduct()
     {
+        // Get customers with their pending reservations
         $reservations = ReservedProducts::with(['product.category', 'customer'])
             ->where('status', 'pending')
             ->orderBy('created_at', 'desc')
+            ->get()
+            ->groupBy('customer_id');
+
+        // For pagination, we'll need a different approach
+        $customerIds = $reservations->keys()->filter()->toArray();
+        $customers = Customer::with(['reservedProducts' => function ($query) {
+            $query->where('status', 'pending')->with('product.category');
+        }])
+            ->whereIn('id', $customerIds)
             ->paginate(10);
 
         return view('cashier.products.reserved_products', [
-            'reservedProducts' => $reservations->groupBy('customer_id'),
-            'pagination' => $reservations,
+            'customers' => $customers,
+            'allReservations' => $reservations
         ]);
     }
 
@@ -216,7 +226,7 @@ class CashierController extends Controller
                 ->update(['status' => 'accepted']);
 
             foreach ($reservedProducts as $reservedProduct) {
-                $reservedProduct->product->decrement('quantity', $reservedProduct->quantity);
+                $reservedProduct->product->increment('quantity', $reservedProduct->quantity);
             }
 
             DB::commit();
@@ -237,7 +247,7 @@ class CashierController extends Controller
     public function cancelReservation(Request $request)
     {
         $request->validate([
-            'reservation_id' => 'required|exists:stock_movements,id,type,Reserved'
+            'reservation_id' => 'required|exists:reserved_products,id,status,pending'
         ]);
 
         try {
@@ -258,6 +268,41 @@ class CashierController extends Controller
                 'message' => 'Reservation cancelled successfully. Stock has been updated.'
             ]);
         } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Failed to cancel reservation: ' . $e->getMessage()
+            ], 500);
+        }
+    }
+
+    public function cancelReservationPOS(Request $request)
+    {
+        $request->validate(['customer_id' => 'required|exists:customers,id']);
+
+        DB::beginTransaction();
+        try {
+            // Get all reserved products for this customer
+            $reservedProducts = ReservedProducts::where('customer_id', $request->customer_id)
+                ->where('status', 'accepted')
+                ->get();
+
+            // Return quantities to stock
+            foreach ($reservedProducts as $reserved) {
+                $reserved->product->decrement('quantity', $reserved->quantity);
+            }
+
+            ReservedProducts::where('customer_id', $request->customer_id)
+                ->where('status', 'accepted')
+                ->update(['status' => 'pending']);
+
+            DB::commit();
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Reservation cancelled successfully'
+            ]);
+        } catch (\Exception $e) {
+            DB::rollBack();
             return response()->json([
                 'success' => false,
                 'message' => 'Failed to cancel reservation: ' . $e->getMessage()

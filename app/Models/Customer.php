@@ -42,11 +42,9 @@ class Customer extends Authenticatable
         ];
     }
 
-    public function reservations()
+    public function reservedProducts()
     {
-        return $this->hasMany(StockMovement::class)
-            ->where('type', 'Reserved')
-            ->with('product');
+        return $this->hasMany(ReservedProducts::class);
     }
 
     public function purchases()

@@ -20,27 +20,29 @@
             <div class="col-12">
                 <div class="card shadow-sm">
                     <div class="card-body">
-                        @if ($reservedProducts->isEmpty())
+                        @if ($customers->isEmpty())
                             <div class="alert alert-info mb-0 text-center">No reserved products found.</div>
                         @else
-                            @foreach ($reservedProducts as $customerId => $movements)
+                            @foreach ($customers as $customer)
+                                @php
+                                    $customerReservations = $allReservations->get($customer->id, collect());
+                                @endphp
+
                                 <div class="customer-section mb-5">
                                     <div class="d-flex justify-content-between align-items-center mb-3">
                                         <h4 class="mb-0">
-                                            @if ($customerId && $movements->first()->customer)
-                                                <i
-                                                    class="fas fa-user me-2"></i>{{ $movements->first()->customer->username }}
-                                            @else
-                                                <i class="fas fa-user-slash me-2"></i>[No Customer]
-                                            @endif
+                                            <i class="fas fa-user me-2"></i>{{ $customer->username }}
                                         </h4>
                                         <span class="badge bg-primary">
-                                            {{ $movements->count() }} {{ Str::plural('item', $movements->count()) }}
+                                            {{ $customerReservations->count() }}
+                                            {{ Str::plural('item', $customerReservations->count()) }}
                                         </span>
-                                        <form action="{{ route('cashier.reservations.accept') }}" method="POST" class="d-inline">
+                                        <form action="{{ route('cashier.reservations.accept') }}" method="POST"
+                                            class="d-inline">
                                             @csrf
-                                            <input type="hidden" name="customer_id" value="{{ $customerId }}">
-                                            <button type="submit" class="btn btn-sm btn-success" title="Accept Reservation">
+                                            <input type="hidden" name="customer_id" value="{{ $customer->id }}">
+                                            <button type="submit" class="btn btn-sm btn-success"
+                                                title="Accept Reservation">
                                                 <i class="bx bx-check-circle"></i> Accept
                                             </button>
                                         </form>
@@ -59,23 +61,23 @@
                                                 </tr>
                                             </thead>
                                             <tbody>
-                                                @foreach ($movements as $movement)
+                                                @foreach ($customerReservations as $reservation)
                                                     <tr class="text-center align-middle">
-                                                        <td>{{ $movement->product->id ?? 'N/A' }}</td>
-                                                        <td>{{ $movement->product->name ?? 'N/A' }}</td>
+                                                        <td>{{ $reservation->product->id ?? 'N/A' }}</td>
+                                                        <td>{{ $reservation->product->name ?? 'N/A' }}</td>
                                                         <td>
-                                                            {{ is_array($movement->product->unit ?? null)
-                                                                ? $movement->product->unit['name'] ?? 'N/A'
-                                                                : (is_object($movement->product->unit ?? null)
-                                                                    ? $movement->product->unit->name ?? 'N/A'
-                                                                    : $movement->product->unit ?? 'N/A') }}
+                                                            @if ($reservation->product && $reservation->product->unit)
+                                                                {{ is_array($reservation->product->unit) ? $reservation->product->unit['name'] : $reservation->product->unit->name }}
+                                                            @else
+                                                                N/A
+                                                            @endif
                                                         </td>
-                                                        <td>{{ $movement->product->category->name ?? 'N/A' }}</td>
-                                                        <td>{{ $movement->quantity ?? 0 }}</td>
+                                                        <td>{{ $reservation->product->category->name ?? 'N/A' }}</td>
+                                                        <td>{{ $reservation->quantity ?? 0 }}</td>
                                                         <td>
                                                             <button class="btn btn-sm btn-danger cancel-btn ms-2"
                                                                 data-bs-toggle="modal" data-bs-target="#deleteModal"
-                                                                data-reservation-id="{{ $movement->id }}"
+                                                                data-reservation-id="{{ $reservation->id }}"
                                                                 title="Cancel Reservation">
                                                                 <i class="bx bx-x-circle"></i>
                                                             </button>
@@ -88,7 +90,7 @@
                                 </div>
                             @endforeach
                             <div class="d-flex justify-content-center mt-4">
-                                {{ $pagination->links() }}
+                                {{ $customers->links() }}
                             </div>
                         @endif
                     </div>
@@ -142,7 +144,7 @@
 
                 $button.prop('disabled', true).html(
                     '<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Processing...'
-                    );
+                );
 
                 $.ajax({
                     url: "{{ route('cashier.reservations.cancel') }}",

@@ -154,7 +154,7 @@ class CustomerController extends Controller
                 'product_id' => $product->id,
                 'customer_id' => $customerId,
                 'quantity' => $validated['quantity'],
-                'status' => 'pending',  // assuming 'reserved' is the status for reserved products
+                'status' => 'pending',  
                 'expired_at' => $expiredAt
             ]);
 
