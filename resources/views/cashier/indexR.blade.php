@@ -52,7 +52,7 @@
                     <div class="col-md-8">
                         <div class="card p-3">
                             @if (session('accepted_products'))
-                                <div class="mb-3">
+                                <div class="mb-3 d-flex justify-content-end">
                                     <button type="button" id="cancelReservationBtn" class="btn btn-danger">
                                         <i class="bx bx-x-circle"></i> Cancel Reservation
                                     </button>
@@ -759,11 +759,13 @@
             const codeId = $(this).data('code_id');
             const productName = $(this).data('name');
             const productPrice = $(this).data('price');
+            const productUnit = $(this).data('unit');
 
             $('#modalProductId').val(productId);
             $('#modalCodeId').val(codeId);
             $('#modalProductName').val(productName);
             $('#modalProductPrice').val(productPrice);
+            $('#modalProductUnit').val(productUnit);
             $('#modalQuantity').val(1);
             $('#modalProductNameDisplay').text(`${codeId} - ${productName}`);
             $('#quantityModal').modal('show');
