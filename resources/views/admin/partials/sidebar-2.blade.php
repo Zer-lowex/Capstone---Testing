@@ -8,7 +8,7 @@
     <li><a href="{{ url('admin/settings/profile') }}"><i class='bx bxs-user-circle icon'></i> Profile</a></li>
     <li class="divider" data-text="System">System</li>
     <li><a href="{{ url('admin/settings/alerts') }}"><i class='bx bxs-bell-ring icon'></i> Alerts</a></li>
-    <li><a href="{{ url('admin/settings/site') }}"><i class='bx bxs-server icon'></i> Website</a></li>
+    <li><a href="{{ url('admin/settings/site') }}"><i class='bx bxs-server icon'></i> Product List</a></li>
 
     
 </ul>
