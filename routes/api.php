@@ -35,6 +35,7 @@ Route::middleware(['auth:sanctum'])->group(function () {
     Route::post('/reserved-products', [CustomerController::class, 'reserveProduct']); //Reserve Products Function
     Route::delete('/delete-reserved/{id}', [CustomerController::class, 'cancelReservation']); //Delete Reserved Products Function
     Route::get('/delivery', [CustomerController::class, 'getDelivery']); //delivery.tsx
+    Route::get('/countDelivery', [CustomerController::class, 'countDelivery']); // Count Pending Deliveries Function
     Route::get('/customerProfile', [CustomerController::class, 'getProfile']); //profile.tsx
     Route::post('/customerLogout', [CustomerController::class, 'logout']); //Logout Function
     Route::put('/updateCustomerProfile', [CustomerController::class, 'updateCustomerProfile']); //Update Profile Details Function

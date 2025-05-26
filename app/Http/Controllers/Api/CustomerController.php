@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
 use App\Models\Category;
+use App\Models\Delivery;
 use App\Models\Product;
 use App\Models\ReservedProducts;
 use App\Models\Sale;
@@ -282,6 +283,22 @@ class CustomerController extends Controller
             'status' => 'success',
             'deliveries' => $sales,
         ]);
+    }
+
+    public function countDelivery()
+    {
+        try {
+            $pendingCount = Delivery::where('status', 'PENDING')->count();
+
+            return response()->json([
+                'count' => $pendingCount
+            ], 200);
+        } catch (\Exception $e) {
+            return response()->json([
+                'message' => 'Failed to fetch pending deliveries count.',
+                'error' => $e->getMessage()
+            ], 500);
+        }
     }
 
     public function getProfile(): JsonResponse
