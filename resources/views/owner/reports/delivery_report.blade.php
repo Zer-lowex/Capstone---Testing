@@ -85,7 +85,7 @@
                                     <td>{{ $delivery->id }}</td>
                                     <td>{{ $delivery->sale->customer->first_name }} {{ $delivery->sale->customer->last_name }}</td>
                                     <td>{{ $delivery->sale->customer->address }}</td>
-                                    <td>{{ $delivery->updated_at->format('Y-m-d H:i') }}</td>
+                                    <td>{{ $delivery->updated_at->format('Y-m-d h:i A') }}</td>
                                     <td>
                                         <span class="badge bg-{{ $delivery->status == 'COMPLETE' ? 'success' : ($delivery->status == 'PENDING' ? 'warning' : 'secondary') }}">
                                             {{ ucfirst($delivery->status) }}
