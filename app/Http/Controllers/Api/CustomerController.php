@@ -154,7 +154,7 @@ class CustomerController extends Controller
                 'product_id' => $product->id,
                 'customer_id' => $customerId,
                 'quantity' => $validated['quantity'],
-                'status' => 'pending',  
+                'status' => 'pending',
                 'expired_at' => $expiredAt
             ]);
 
@@ -288,7 +288,12 @@ class CustomerController extends Controller
     public function countDelivery()
     {
         try {
-            $pendingCount = Delivery::where('status', 'PENDING')->count();
+            $user = Auth::user();
+            $pendingCount = Delivery::where('status', 'PENDING')
+                ->whereHas('sale', function ($query) use ($user) {
+                    $query->where('customer_id', $user->id);
+                })
+                ->count();
 
             return response()->json([
                 'count' => $pendingCount
@@ -348,7 +353,6 @@ class CustomerController extends Controller
                 'success' => true,
                 'message' => 'Successfully logged out from all devices'
             ]);
-
         } catch (\Exception $e) {
             return response()->json([
                 'success' => false,
