@@ -6,7 +6,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
     <link rel="icon" href="{{ asset('assets/images/kc.png') }}" type="image/png">
-    <link rel="stylesheet" href="{{ asset('assets/css/login.css') }}">
+    <link rel="stylesheet" href="{{ asset('assets/css/register.css') }}">
     <link href='https://unpkg.com/boxicons@2.0.9/css/boxicons.min.css' rel='stylesheet'>
     <title>Register</title>
 </head>
@@ -15,16 +15,16 @@
     {{-- Main container for register page --}}
     <div class="register-container">
         {{-- Left section for promotional content --}}
-        <div class="login-left">
+        <div class="register-left">
             <div class="promo-content">
                 <img src="{{ asset('assets/images/kc.png') }}" alt="Logo" class="promo-image">
-                <h2>KC PRIME ENTERPRISE</h2>
-                <p>INVENTORY TRACKING SYSTEM</p>
+                <h2>KC PRIME SUITE</h2>
+                <p>POS AND ENTERPRISE MANAGEMENT SYSTEM</p>
             </div>
         </div>
 
         {{-- Right section for register form --}}
-        <div class="login-right">
+        <div class="register-right">
             <div class="register-wrapper"> 
                 <div class="register-box"> 
                     <h2>Create Account</h2>
