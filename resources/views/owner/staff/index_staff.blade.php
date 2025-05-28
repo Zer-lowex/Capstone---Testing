@@ -193,12 +193,19 @@
                             if (staff.usertype !== 'Admin' && staff.usertype !== 'Owner') {
                                 tableData += `
                                     <tr>
-                                        <td>${staff.id}</td>
                                         <td>${staff.first_name}</td>
                                         <td>${staff.last_name}</td>
                                         <td>${staff.username}</td>
                                         <td>${staff.usertype}</td>
-                                        <td class="${staff.status === 'Online' ? 'text-success' : ''}">${staff.status}</td>
+                                        <td>
+                                            ${staff.status === 'Online' ? 
+                                                `<span style="color: #006400;">
+                                                        <i class="bx bxs-circle me-1"></i> Online
+                                                    </span>` : 
+                                                `<span class="text-secondary">
+                                                        <i class="bx bxs-circle me-1"></i> Offline
+                                                    </span>`}
+                                        </td>
                                         <td>
                                             <!-- Show Details Button -->
                                             <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#staffDetailModal-${staff.id}">
