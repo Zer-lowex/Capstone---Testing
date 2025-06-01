@@ -21,7 +21,7 @@
             <div class="promo-content">
                 <img src="{{ asset('assets/images/kc.png') }}" alt="Logo" class="promo-image">
                 <h2>KC PRIME SUITE</h2>
-                <p>POS AND ENTERPRISE MANAGEMENT SYSTEM</p>
+                <p>POS WITH RESERVATION MANAGEMENT SYSTEM</p>
             </div>
         </div>
 
